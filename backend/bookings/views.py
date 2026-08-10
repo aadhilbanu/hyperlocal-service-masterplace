@@ -1,17 +1,10 @@
-from django.shortcuts import render
-
-from rest_framework import serializers
+from rest_framework import generics, permissions
 from .models import Booking
-from services.models import ServiceListing
+from .serializers import BookingSerializer
 
-class BookingSerializer(serializers.ModelSerializer):
-    listing_title = serializers.CharField(source='listing.title', read_only=True)
+class BookingListCreateView(generics.ListCreateAPIView):
+    serializer_class = BookingSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
-    class Meta:
-        model = Booking
-        fields = ['id', 'listing', 'listing_title', 'scheduled_time', 'status', 'created_at']
-        read_only_fields = ['status', 'created_at']
-
-    def create(self, validated_data):
-        validated_data['customer'] = self.context['request'].user
-        return super().create(validated_data)
+    def get_queryset(self):
+        return Booking.objects.filter(customer=self.request.user).order_by('-created_at')

@@ -13,3 +13,4 @@ class ServiceListingSerializer(serializers.ModelSerializer):
     class Meta:
         model = ServiceListing
         fields = ['id', 'title', 'description', 'price', 'category', 'provider_name', 'is_active']
+        
