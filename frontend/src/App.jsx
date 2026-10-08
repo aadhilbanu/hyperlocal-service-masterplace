@@ -17,15 +17,49 @@ function App() {
   }
 
   return (
-    <div>
-      <nav style={{ textAlign: 'center', padding: 16, borderBottom: '1px solid #ccc' }}>
-        <button onClick={() => setView('services')} style={{ marginRight: 10 }}>
-          Browse Services
-        </button>
-        <button onClick={() => setView('bookings')} style={{ marginRight: 10 }}>
-          My Bookings
-        </button>
-        <button onClick={handleLogout}>Log Out</button>
+    <div style={{ minHeight: '100vh' }}>
+      <nav style={{ background: 'var(--navy)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--amber)' }} />
+          <span style={{ color: '#fff', fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 600 }}>
+            Hyperlocal
+          </span>
+        </div>
+        <div style={{ display: 'flex', gap: 4 }}>
+          <button
+            onClick={() => setView('services')}
+            style={{
+              background: view === 'services' ? 'rgba(255,255,255,0.12)' : 'transparent',
+              color: '#fff',
+              padding: '8px 16px',
+              fontSize: 14,
+            }}
+          >
+            Browse Services
+          </button>
+          <button
+            onClick={() => setView('bookings')}
+            style={{
+              background: view === 'bookings' ? 'rgba(255,255,255,0.12)' : 'transparent',
+              color: '#fff',
+              padding: '8px 16px',
+              fontSize: 14,
+            }}
+          >
+            My Bookings
+          </button>
+          <button
+            onClick={handleLogout}
+            style={{
+              background: 'transparent',
+              color: 'var(--amber)',
+              padding: '8px 16px',
+              fontSize: 14,
+            }}
+          >
+            Log Out
+          </button>
+        </div>
       </nav>
       {view === 'services' ? <Services /> : <MyBookings />}
     </div>
