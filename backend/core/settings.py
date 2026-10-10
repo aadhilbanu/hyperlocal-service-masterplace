@@ -136,3 +136,9 @@ REST_FRAMEWORK = {
     ),
 }
 CORS_ALLOW_ALL_ORIGINS = True  # fine for local dev only
+# --- Production-ready overrides (read from environment variables) ---
+SECRET_KEY = os.getenv('SECRET_KEY', SECRET_KEY)
+DEBUG = os.getenv('DEBUG', 'True') == 'True'
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '127.0.0.1,localhost').split(',')
+CORS_ALLOW_ALL_ORIGINS = False
+CORS_ALLOWED_ORIGINS = os.getenv('CORS_ALLOWED_ORIGINS', 'http://localhost:5173').split(',')
