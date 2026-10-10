@@ -149,3 +149,5 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 if os.getenv('DB_SSL_CA'):
     DATABASES['default']['OPTIONS'] = {'ssl': {'ca': str(BASE_DIR / os.getenv('DB_SSL_CA'))}}
+
+INSTALLED_APPS += ['reviews']
