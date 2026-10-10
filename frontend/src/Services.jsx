@@ -1,95 +1,106 @@
 import { useState, useEffect } from 'react';
-import api from './api';
+import api, { errorText } from './api';
+
+function minDateTime() {
+  const now = new Date();
+  return new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+}
+
+function ratingText(service) {
+  if (service.average_rating === null || service.average_rating === undefined) {
+    return 'No reviews yet';
+  }
+  return 'Rating ' + service.average_rating + ' / 5 (' + service.review_count + ' reviews)';
+}
 
 function Services() {
   const [services, setServices] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
-  const [bookingId, setBookingId] = useState(null);
-
-  const fetchServices = async () => {
-    try {
-      const token = localStorage.getItem('access_token');
-      const response = await api.get('/services/listings/', {
-        headers: { Authorization: 'Bearer ' + token },
-      });
-      setServices(response.data);
-    } catch (err) {
-      setError('Could not load services right now.');
-    }
-  };
+  const [openId, setOpenId] = useState(null);
+  const [when, setWhen] = useState('');
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    fetchServices();
+    api.get('/services/listings/')
+      .then((res) => setServices(res.data))
+      .catch(() => setError('Could not load services right now.'))
+      .finally(() => setLoading(false));
   }, []);
 
   const handleBook = async (listingId) => {
-    setMessage('');
     setError('');
-    setBookingId(listingId);
+    setMessage('');
+    if (!when) {
+      setError('Please choose a date and time.');
+      return;
+    }
+    setSaving(true);
     try {
-      const token = localStorage.getItem('access_token');
-      const scheduledTime = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
-      await api.post(
-        '/bookings/',
-        { listing: listingId, scheduled_time: scheduledTime },
-        { headers: { Authorization: 'Bearer ' + token } }
-      );
-      setMessage('Booked. See it under My Bookings.');
+      await api.post('/bookings/', {
+        listing: listingId,
+        scheduled_time: new Date(when).toISOString(),
+      });
+      setMessage('Booking requested. Track it under My Bookings.');
+      setOpenId(null);
+      setWhen('');
     } catch (err) {
-      setError('Booking did not go through. Try again.');
+      setError(errorText(err, 'Booking did not go through. Try again.'));
     } finally {
-      setBookingId(null);
+      setSaving(false);
     }
   };
 
+  const toggle = (id) => {
+    setError('');
+    setMessage('');
+    setOpenId(openId === id ? null : id);
+  };
+
   return (
-    <div style={{ maxWidth: 640, margin: '0 auto', padding: '48px 20px' }}>
+    <div className="page">
       <div style={{ marginBottom: 28 }}>
-        <div style={{ width: 40, height: 4, background: 'var(--amber)', borderRadius: 2, marginBottom: 16 }} />
+        <div className="accent-bar" />
         <h1 style={{ fontSize: 30 }}>Available services</h1>
-        <p style={{ color: 'var(--slate)', fontSize: 14, marginTop: 6 }}>
-          Verified providers near you, ready to book.
-        </p>
+        <p className="muted" style={{ marginTop: 6 }}>Verified providers near you, ready to book.</p>
       </div>
 
-      {error && <p style={{ color: '#B3261E', fontSize: 14, marginBottom: 16 }}>{error}</p>}
-      {message && (
-        <div style={{ background: 'var(--success-bg)', color: 'var(--success)', padding: '10px 14px', borderRadius: 8, fontSize: 14, marginBottom: 16 }}>
-          {message}
+      {error && <p className="error-text">{error}</p>}
+      {message && <div className="success-box">{message}</div>}
+
+      {!loading && services.length === 0 && !error && (
+        <div className="card" style={{ textAlign: 'center' }}>
+          <p className="muted">No services listed yet. Check back soon.</p>
         </div>
       )}
 
-      {services.length === 0 && !error && (
-        <div className="card" style={{ textAlign: 'center', color: 'var(--slate)' }}>
-          No services listed yet. Check back soon.
-        </div>
-      )}
-
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+      <div className="stack">
         {services.map((s) => (
-          <div key={s.id} className="card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 16 }}>
-            <div>
-              <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--amber-dark)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 4 }}>
-                {s.category ? s.category.name : 'Service'}
+          <div key={s.id} className="card">
+            <div className="row">
+              <div>
+                <div className="eyebrow">{s.category ? s.category.name : 'Service'}</div>
+                <h3 style={{ fontSize: 18 }}>{s.title}</h3>
+                <p className="muted">by {s.provider_name}</p>
+                <p className="muted">{ratingText(s)}</p>
               </div>
-              <h3 style={{ fontSize: 18 }}>{s.title}</h3>
-              <p style={{ color: 'var(--slate)', fontSize: 13, marginTop: 4 }}>
-                by {s.provider_name}
-              </p>
-            </div>
-            <div style={{ textAlign: 'right', flexShrink: 0 }}>
-              <div style={{ fontFamily: 'var(--font-display)', fontSize: 20, fontWeight: 600, color: 'var(--navy)', marginBottom: 8 }}>
-                Rs. {s.price}
+              <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                <div className="price">Rs. {s.price}</div>
+                <button className="btn-primary" onClick={() => toggle(s.id)}>
+                  {openId === s.id ? 'Close' : 'Book'}
+                </button>
               </div>
-              <button
-                onClick={() => handleBook(s.id)}
-                className="btn-primary"
-                disabled={bookingId === s.id}
-              >
-                {bookingId === s.id ? 'Booking...' : 'Book for tomorrow'}
-              </button>
             </div>
+            {openId === s.id && (
+              <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid var(--line)' }}>
+                <label className="label">Choose date and time</label>
+                <input type="datetime-local" min={minDateTime()} value={when} onChange={(e) => setWhen(e.target.value)} />
+                <button className="btn-primary" style={{ marginTop: 12 }} onClick={() => handleBook(s.id)} disabled={saving}>
+                  {saving ? 'Booking...' : 'Confirm booking'}
+                </button>
+              </div>
+            )}
           </div>
         ))}
       </div>

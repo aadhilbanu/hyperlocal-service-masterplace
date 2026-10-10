@@ -151,3 +151,7 @@ if os.getenv('DB_SSL_CA'):
     DATABASES['default']['OPTIONS'] = {'ssl': {'ca': str(BASE_DIR / os.getenv('DB_SSL_CA'))}}
 
 INSTALLED_APPS += ['reviews']
+
+# --- JWT token lifetime ---
+from datetime import timedelta
+SIMPLE_JWT = {'ACCESS_TOKEN_LIFETIME': timedelta(hours=1)}
