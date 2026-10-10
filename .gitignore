@@ -6,3 +6,5 @@ db.sqlite3
 node_modules/
 dist/
 .pytest_cache/
+
+staticfiles/

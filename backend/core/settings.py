@@ -142,3 +142,10 @@ DEBUG = os.getenv('DEBUG', 'True') == 'True'
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '127.0.0.1,localhost').split(',')
 CORS_ALLOW_ALL_ORIGINS = False
 CORS_ALLOWED_ORIGINS = os.getenv('CORS_ALLOWED_ORIGINS', 'http://localhost:5173').split(',')
+
+# --- Deployment settings ---
+MIDDLEWARE.insert(2, 'whitenoise.middleware.WhiteNoiseMiddleware')
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+if os.getenv('DB_SSL_CA'):
+    DATABASES['default']['OPTIONS'] = {'ssl': {'ca': str(BASE_DIR / os.getenv('DB_SSL_CA'))}}
