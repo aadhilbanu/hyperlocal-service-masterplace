@@ -23,6 +23,15 @@ class ServiceListingListCreateView(generics.ListCreateAPIView):
         serializer.save(provider=self.request.user)
 
 
+class ServiceListingDetailView(generics.RetrieveUpdateAPIView):
+    serializer_class = ServiceListingSerializer
+    permission_classes = [IsProviderOrReadOnly]
+    http_method_names = ['get', 'patch', 'head', 'options']
+
+    def get_queryset(self):
+        return ServiceListing.objects.filter(provider=self.request.user)
+
+
 class ServiceCategoryListView(generics.ListAPIView):
     queryset = ServiceCategory.objects.all()
     serializer_class = ServiceCategorySerializer
