@@ -60,6 +60,17 @@ function ProviderListings() {
     }
   };
 
+  const toggleActive = async (listing) => {
+    setError('');
+    setMessage('');
+    try {
+      await api.patch('/services/listings/' + listing.id + '/', { is_active: !listing.is_active });
+      await load();
+    } catch (err) {
+      setError(errorText(err, 'Could not update the service.'));
+    }
+  };
+
   return (
     <div className="page">
       <div style={{ marginBottom: 28 }}>
@@ -117,8 +128,14 @@ function ProviderListings() {
                 <div className="eyebrow">{s.category ? s.category.name : 'Service'}</div>
                 <h3 style={{ fontSize: 18 }}>{s.title}</h3>
                 <p className="muted">{ratingText(s)}</p>
+                {!s.is_active && <span className="badge badge-paused" style={{ marginTop: 8 }}>paused</span>}
               </div>
-              <div className="price">Rs. {s.price}</div>
+              <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                <div className="price">Rs. {s.price}</div>
+                <button className="btn-secondary" onClick={() => toggleActive(s)}>
+                  {s.is_active ? 'Pause' : 'Activate'}
+                </button>
+              </div>
             </div>
           </div>
         ))}

@@ -15,6 +15,9 @@ function ratingText(service) {
 
 function Services() {
   const [services, setServices] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [search, setSearch] = useState('');
+  const [categoryId, setCategoryId] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
@@ -23,11 +26,21 @@ function Services() {
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    api.get('/services/listings/')
-      .then((res) => setServices(res.data))
+    Promise.all([api.get('/services/listings/'), api.get('/services/categories/')])
+      .then(([listRes, catRes]) => {
+        setServices(listRes.data);
+        setCategories(catRes.data);
+      })
       .catch(() => setError('Could not load services right now.'))
       .finally(() => setLoading(false));
   }, []);
+
+  const visible = services.filter((s) => {
+    const text = (s.title + ' ' + s.description + ' ' + s.provider_name).toLowerCase();
+    const matchesText = text.includes(search.toLowerCase());
+    const matchesCategory = !categoryId || (s.category && String(s.category.id) === categoryId);
+    return matchesText && matchesCategory;
+  });
 
   const handleBook = async (listingId) => {
     setError('');
@@ -66,6 +79,16 @@ function Services() {
         <p className="muted" style={{ marginTop: 6 }}>Verified providers near you, ready to book.</p>
       </div>
 
+      <div className="toolbar">
+        <input type="text" placeholder="Search services or providers" value={search} onChange={(e) => setSearch(e.target.value)} />
+        <select value={categoryId} onChange={(e) => setCategoryId(e.target.value)}>
+          <option value="">All categories</option>
+          {categories.map((c) => (
+            <option key={c.id} value={c.id}>{c.name}</option>
+          ))}
+        </select>
+      </div>
+
       {error && <p className="error-text">{error}</p>}
       {message && <div className="success-box">{message}</div>}
 
@@ -74,9 +97,14 @@ function Services() {
           <p className="muted">No services listed yet. Check back soon.</p>
         </div>
       )}
+      {!loading && services.length > 0 && visible.length === 0 && (
+        <div className="card" style={{ textAlign: 'center' }}>
+          <p className="muted">Nothing matches your search.</p>
+        </div>
+      )}
 
       <div className="stack">
-        {services.map((s) => (
+        {visible.map((s) => (
           <div key={s.id} className="card">
             <div className="row">
               <div>

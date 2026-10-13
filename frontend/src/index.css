@@ -127,3 +127,15 @@ select:focus, textarea:focus { border-color: var(--amber); box-shadow: 0 0 0 3px
 .nav-btn { background: transparent; color: #fff; padding: 8px 16px; font-size: 14px; }
 .nav-btn.active { background: rgba(255,255,255,0.12); }
 .nav-user { color: #9AA3B5; font-size: 12px; margin-right: 8px; }
+
+.toolbar { display: flex; gap: 10px; margin-bottom: 18px; flex-wrap: wrap; }
+.toolbar input { flex: 2; min-width: 160px; }
+.toolbar select { flex: 1; min-width: 140px; }
+.badge-paused { background: #ECEAE4; color: var(--slate); }
+
+@media (max-width: 560px) {
+  .page { padding: 28px 16px; }
+  .row { flex-direction: column; }
+  .row > div:last-child { text-align: left !important; }
+  .topnav { padding: 12px 16px; }
+}
