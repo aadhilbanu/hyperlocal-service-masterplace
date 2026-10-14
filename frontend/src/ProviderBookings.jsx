@@ -15,7 +15,7 @@ function ProviderBookings() {
       ]);
       setBookings(bookingRes.data);
       setReviews(reviewRes.data);
-    } catch (err) {
+    } catch {
       setError('Could not load booking requests.');
     } finally {
       setLoading(false);

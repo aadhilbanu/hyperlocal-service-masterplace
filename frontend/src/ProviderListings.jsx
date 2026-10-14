@@ -27,7 +27,7 @@ function ProviderListings() {
       if (catRes.data.length > 0) {
         setForm((f) => (f.category_id ? f : { ...f, category_id: String(catRes.data[0].id) }));
       }
-    } catch (err) {
+    } catch {
       setError('Could not load your services.');
     }
   };

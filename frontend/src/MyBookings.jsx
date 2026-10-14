@@ -18,7 +18,7 @@ function MyBookings() {
       ]);
       setBookings(bookingRes.data);
       setReviews(reviewRes.data);
-    } catch (err) {
+    } catch {
       setError('Could not load your bookings.');
     } finally {
       setLoading(false);

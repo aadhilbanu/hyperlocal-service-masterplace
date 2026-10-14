@@ -27,7 +27,7 @@ function App() {
       const links = NAV[res.data.role] || NAV.customer;
       setUser(res.data);
       setView(links[0][0]);
-    } catch (err) {
+    } catch {
       localStorage.removeItem('access_token');
       setUser(null);
     } finally {

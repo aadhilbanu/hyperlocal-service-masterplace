@@ -15,7 +15,7 @@ function Login({ onLoginSuccess, onShowRegister }) {
       const response = await api.post('/token/', { username, password });
       localStorage.setItem('access_token', response.data.access);
       onLoginSuccess();
-    } catch (err) {
+    } catch {
       setError('Invalid username or password.');
     } finally {
       setLoading(false);
