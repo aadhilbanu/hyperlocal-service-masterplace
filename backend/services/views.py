@@ -1,4 +1,5 @@
 from rest_framework import generics, permissions
+from users.permissions import IsAdminRole
 from .models import ServiceListing, ServiceCategory
 from .serializers import ServiceListingSerializer, ServiceCategorySerializer
 
@@ -8,6 +9,13 @@ class IsProviderOrReadOnly(permissions.BasePermission):
         if request.method in permissions.SAFE_METHODS:
             return request.user.is_authenticated
         return request.user.is_authenticated and request.user.role == 'provider'
+
+
+class IsAdminOrReadOnly(permissions.BasePermission):
+    def has_permission(self, request, view):
+        if request.method in permissions.SAFE_METHODS:
+            return request.user.is_authenticated
+        return IsAdminRole().has_permission(request, view)
 
 
 class ServiceListingListCreateView(generics.ListCreateAPIView):
@@ -32,7 +40,7 @@ class ServiceListingDetailView(generics.RetrieveUpdateAPIView):
         return ServiceListing.objects.filter(provider=self.request.user)
 
 
-class ServiceCategoryListView(generics.ListAPIView):
-    queryset = ServiceCategory.objects.all()
+class ServiceCategoryListView(generics.ListCreateAPIView):
+    queryset = ServiceCategory.objects.all().order_by('name')
     serializer_class = ServiceCategorySerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAdminOrReadOnly]

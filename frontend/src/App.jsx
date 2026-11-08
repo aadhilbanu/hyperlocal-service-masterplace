@@ -6,13 +6,14 @@ import Services from './Services';
 import MyBookings from './MyBookings';
 import ProviderListings from './ProviderListings';
 import ProviderBookings from './ProviderBookings';
+import AdminDashboard from './AdminDashboard';
 
 const API_ROOT = (import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api').replace(/\/api\/?$/, '');
 
 const NAV = {
   customer: [['services', 'Browse Services'], ['bookings', 'My Bookings']],
   provider: [['listings', 'My Services'], ['requests', 'Booking Requests']],
-  admin: [['admin', 'Admin']],
+  admin: [['admin', 'Dashboard']],
 };
 
 function App() {
@@ -92,19 +93,7 @@ function App() {
       {view === 'bookings' && <MyBookings />}
       {view === 'listings' && <ProviderListings />}
       {view === 'requests' && <ProviderBookings />}
-      {view === 'admin' && (
-        <div className="page">
-          <div className="accent-bar" />
-          <h1 style={{ fontSize: 30 }}>Admin</h1>
-          <p className="muted" style={{ marginTop: 6, marginBottom: 20 }}>
-            Manage categories, users, listings and bookings in the admin panel.
-          </p>
-          <a className="btn-primary" style={{ display: 'inline-block', textDecoration: 'none', borderRadius: 8 }}
-             href={API_ROOT + '/admin/'} target="_blank" rel="noreferrer">
-            Open admin panel
-          </a>
-        </div>
-      )}
+      {view === 'admin' && <AdminDashboard adminUrl={API_ROOT + '/admin/'} />}
     </div>
   );
 }

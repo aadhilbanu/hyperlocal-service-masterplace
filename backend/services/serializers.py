@@ -8,6 +8,12 @@ class ServiceCategorySerializer(serializers.ModelSerializer):
         model = ServiceCategory
         fields = ['id', 'name', 'description']
 
+    def validate_name(self, value):
+        value = value.strip()
+        if ServiceCategory.objects.filter(name__iexact=value).exists():
+            raise serializers.ValidationError('A category with this name already exists.')
+        return value
+
 
 class ServiceListingSerializer(serializers.ModelSerializer):
     category = ServiceCategorySerializer(read_only=True)
